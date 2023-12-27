@@ -1,3 +1,5 @@
+#!/bin/bash
+
 function usage() {
     cat <<EOF
 Usage: run_batch.sh <util> <util cpu> <network_up> <network_down> <seed>
@@ -9,9 +11,9 @@ if [ $# -lt 3 ]; then
     exit 1
 fi
 
-GASTASK=`./gastask`
+GASTASK="build/gastask"
 
-GASGEN=`./gasgen`
+GASGEN="build/gasgen"
 
 utilTarget=$1
 utilCpu=$2
@@ -66,7 +68,7 @@ mec  2   400   100   100000   1.0
 echo "$COMMON_CONF" <<EOF >$gastask_conf
 EOF
 
-'./gasgen' $gastask_conf
+./$GASGEN $gastask_conf
 cat ./network_generated.txt >>$gastask_conf
 
 echo "
@@ -88,36 +90,36 @@ mv ./network_commander_generated.txt $OUTPUT/gen_network_commander_generated_$ut
 
 touch $OUTPUT/output_$utilTarget+$networkUp.txt
 echo "*tovs\n" >> $OUTPUT/output_$utilTarget+$networkUp.txt
-./gastask -s $seed $gastask_conf >> $OUTPUT/output_$utilTarget+$networkUp.txt
+./$GASTASK -s $seed $gastask_conf >> $OUTPUT/output_$utilTarget+$networkUp.txt
 mv task.txt $OUTPUT/task_$utilTarget+$networkUp+tovs.txt
-sed -i "" "20s/0.5/\#0.5/" $gastask_conf
-sed -i "" "21s/0.25/\#0.25/" $gastask_conf
-sed -i "" "22s/0.125/\#0.125/" $gastask_conf
+sed -i "20s/0.5/\#0.5/" $gastask_conf
+sed -i "21s/0.25/\#0.25/" $gastask_conf
+sed -i "22s/0.125/\#0.125/" $gastask_conf
 
 echo "\n*offloading\n" >> $OUTPUT/output_$utilTarget+$networkUp.txt
-./gastask -s $seed $gastask_conf >> $OUTPUT/output_$utilTarget+$networkUp.txt
+./$GASTASK -s $seed $gastask_conf >> $OUTPUT/output_$utilTarget+$networkUp.txt
 mv task.txt $OUTPUT/task_$utilTarget+$networkUp+offloading.txt
 
-sed -i "" "20s/\#0.5/0.5/" $gastask_conf
-sed -i "" "21s/\#0.25/0.25/" $gastask_conf
-sed -i "" "22s/\#0.125/0.125/" $gastask_conf
+sed -i "20s/\#0.5/0.5/" $gastask_conf
+sed -i "21s/\#0.25/0.25/" $gastask_conf
+sed -i "22s/\#0.125/0.125/" $gastask_conf
 
-sed -i "" "36s/1/\#1/" $gastask_conf
+sed -i "36s/1/\#1/" $gastask_conf
 
 echo "\n*dvfs\n" >> $OUTPUT/output_$utilTarget+$networkUp.txt
-./gastask -s $seed $gastask_conf >> $OUTPUT/output_$utilTarget+$networkUp.txt
+./$GASTASK -s $seed $gastask_conf >> $OUTPUT/output_$utilTarget+$networkUp.txt
 mv task.txt $OUTPUT/task_$utilTarget+$networkUp+dvfs.txt
 
-sed -i "" "20s/0.5/\#0.5/" $gastask_conf
-sed -i "" "21s/0.25/\#0.25/" $gastask_conf
-sed -i "" "22s/0.125/\#0.125/" $gastask_conf
+sed -i "20s/0.5/\#0.5/" $gastask_conf
+sed -i "21s/0.25/\#0.25/" $gastask_conf
+sed -i "22s/0.125/\#0.125/" $gastask_conf
 echo "\n*nothing\n" >> $OUTPUT/output_$utilTarget+$networkUp.txt
-./gastask -s $seed $gastask_conf >> $OUTPUT/output_$utilTarget+$networkUp.txt
+./$GASTASK -s $seed $gastask_conf >> $OUTPUT/output_$utilTarget+$networkUp.txt
 mv task.txt $OUTPUT/task_$utilTarget+$networkUp+nothing.txt
 
-sed -i "" "20s/\#0.5/0.5/" $gastask_conf
-sed -i "" "21s/\#0.25/0.25/" $gastask_conf
-sed -i "" "22s/\#0.125/0.125/" $gastask_conf
-sed -i "" "36s/\#1/1/" $gastask_conf
+sed -i "20s/\#0.5/0.5/" $gastask_conf
+sed -i "21s/\#0.25/0.25/" $gastask_conf
+sed -i "22s/\#0.125/0.125/" $gastask_conf
+sed -i "36s/\#1/1/" $gastask_conf
 
 mv $gastask_conf $OUTPUT/gastask_$utilTarget+$$.conf
